@@ -1,52 +1,41 @@
-$("#addStudentForm").hide();
 $(document).ready(function() {
-
-    // Get Request when we refresh the page
+    let body = $("body")
+    $("#addStudentForm").hide();
+    const BASE_URL = "http://localhost:3000/students/";
+    // GET Request when we refresh the page
     $.ajax({
-        url: "http://localhost:3000/students",
+        url: BASE_URL,
         method: "GET",
         dataType: "json",
         success: function (response) {
             let tableBody = $("table tbody");
             tableBody.empty();
             for (let i = 0; i < response.length; i++) {
-                /*let tr = $("<tr></tr>")
-                let tdName = $("<td></td>").text(response[i].firstName);
-                let tdLastName = $("<td></td>").text(response[i].lastName);
-                let tdDateOfBirth = $("<td></td>").text(response[i].dateOfBirth);
-                tr.append(tdName, tdLastName, tdDateOfBirth);*/
-                // 2nd method
-                tableBody.append(`<tr id="trow"><td class="firstName">${response[i].firstName}</td>
-                <td class="lastName">${response[i].lastName}</td>
-                <td class="dateOfBirth">${response[i].dateOfBirth}</td>
+                tableBody.append(`<tr class="student">
+                    <td class="firstName"><span class="firstNameLabel">${response[i].firstName}</span><input  placeholder="First name..." type="text" class="form-control-sm editFirstName text-center" value="${response[i].firstName}" style="display: none"></td>
+                    <td class="lastName"><span class="lastNameLabel">${response[i].lastName}</span><input  placeholder="Last name..." type="text" class="form-control-sm editLastName text-center" value="${response[i].lastName}" style="display: none"></td>
+                    <td class="dateOfBirth"><span class="dateOfBirthLabel">${response[i].dateOfBirth}</span><input type="date" class="form-control-sm editDateOfBirth text-center" value="${response[i].dateOfBirth}" style="display: none"></td>
                 <td><button class="btn btn-success disabled">show</button>
                 <button class="btn btn-primary ms-2 btnEdit">edit</button>
+                <button class="btn btn-primary ms-2 btnSave" style="display: none">save</button>
                 <button class="btn btn-danger ms-2 btnDel">delete</button>
-                </td><input value="${response[i].id}" type="hidden">
+                </td><input value="${response[i].id}" type="hidden" class="studentId">
                 </tr>`);
-
             }
         },
     });
 
     $("#addStudentBtn").click(function () {
         $("#addStudentForm").toggle();
-        // 2nd method
-        /*if ($("#addStudentForm").is(":visible")) {
-            $("#addStudentForm").fadeOut(500);
-        } else {
-            $("#addStudentForm").fadeIn(500);
-        }*/
     });
 
-    // Post Request to add student
+    // POST Request to add student
     $("#submitBtn").click(function () {
         let firstName = $("#firstName").val();
         let lastName = $("#lastName").val();
         let dateOfBirth = $("#dateOfBirth").val();
-
         $.ajax({
-            url: "http://localhost:3000/students",
+            url: BASE_URL,
             method: "POST",
             dataType: "json",
             contentType: "application/json",
@@ -56,23 +45,18 @@ $(document).ready(function() {
                 "dateOfBirth": dateOfBirth
             }),
             success: function (response) {
-               // console.log(response);
                 let tableBody = $("table tbody");
-               /* let tr = $("<tr></tr>");
-                let tdName = $("<td></td>").text(response.firstName);
-                let tdLastName = $("<td></td>").text(response.lastName);
-                let tdDateOfBirth = $("<td></td>").text(response.dateOfBirth);
-                let tdActions = $("<td></td>");
-                let deleteButton = $("<button>Delete</button>")
-                tr.append(tdName, tdLastName, tdDateOfBirth,deleteButton);*/
-                tableBody.append(`<tr id="trow">
-                    <td class="firstName">${response.firstName}</td>
-                    <td class="lastName">${response.lastName}</td>
-                    <td class="dateOfBirth">${response.dateOfBirth}</td>
-                    <td><button class="btn btn-success disabled">show</button>
+                tableBody.append(`<tr class="student">
+                    <td class="firstName"><span class="firstNameLabel">${response.firstName}</span><input placeholder="First name..." type="text" class="form-control-sm editFirstName text-center" value="${response.firstName}" style="display: none"></td>
+                    <td class="lastName"><span class="lastNameLabel">${response.lastName}</span><input placeholder="Last name..." type="text" class="form-control-sm editLastName text-center" value="${response.lastName}" style="display: none"></td>
+                    <td class="dateOfBirth"><span class="dateOfBirthLabel">${response.dateOfBirth}</span><input type="date" class="form-control-sm editDateOfBirth text-center" value="${response.dateOfBirth}" style="display: none"></td>
+                    <td>
+                    <button class="btn btn-success disabled">show</button>
                     <button  class="btn btn-primary ms-2 btnEdit">edit</button>
+                    <button  class="btn btn-primary ms-2 btnSave" style="display: none">save</button>
                     <button class="btn btn-danger ms-2 btnDel">delete</button>
-                    </td><input value="${response.id}" type="hidden">
+                    </td>
+                    <input value="${response.id}" type="hidden" class="studentId">
                     </tr>`
                 );
             }
@@ -80,260 +64,140 @@ $(document).ready(function() {
         $('.addStudentInput').val('');
     });
 
-
-
-    $('body').on('click', '.btnDel', function(){
+    body.on('click', '.btnDel', function(){
         let that = $(this)
        let studentId = $(this).parent().next().val();
         // Make an AJAX request to delete the item from the server
        $.ajax({
-            url: 'http://localhost:3000/students/' + studentId,
+            url: BASE_URL + studentId,
             type: 'DELETE',
             success: function(response) {
                 // Remove the row from table
              that.parent().parent().remove()
-                console.log('student deleted successfully from the server');
             },
            error: function(error) {
             console.error('Error deleting student:', error);
         },
-       //$(this).closest('tr').remove();
        });
     });
 
-    $('body').on('click','.btnEdit', function(){
+    body.on('click','.btnEdit', function(){
+        let userDataRow = $(this).parent().parent();
+        let allStudentsRows = $(".student");
+        // we loop through all students rows and hide inputs and show spans for already active rows
+        allStudentsRows.each(function(i, obj) {
+            if($(this).hasClass("active-row"))
+            {
+                // Select Inputs
+                let firstNameInputToHide = $(this).find('.editFirstName');
+                let lastNameInputToHide = $(this).find('.editLastName');
+                let dateOfBirthInputToHide = $(this).find('.editDateOfBirth');
+                // Select Spans
+                let firstNameSpanToShow = $(this).find('.firstNameLabel');
+                let lastNameSpanToShow = $(this).find('.lastNameLabel');
+                let dateOfBirthSpanToShow = $(this).find('.dateOfBirthLabel');
+                // Hide Inputs
+                firstNameInputToHide.hide();
+                lastNameInputToHide.hide();
+                dateOfBirthInputToHide.hide();
+                // Set input values to initial state
+                firstNameInputToHide.val(firstNameSpanToShow.text())
+                lastNameInputToHide.val(lastNameSpanToShow.text())
+                dateOfBirthInputToHide.val(dateOfBirthSpanToShow.text())
+                // Show Spans
+                firstNameSpanToShow.show()
+                lastNameSpanToShow.show()
+                dateOfBirthSpanToShow.show()
+                // Hide save button & show edit button
+                $(this).find('.btnSave').hide()
+                $(this).find('.btnEdit').show()
+            }
+        });
+        // Select td
+        let firstNameTd = userDataRow.find('.firstName');
+        let lastNameTd = userDataRow.find('.lastName');
+        let dateOfBirthTd = userDataRow.find('.dateOfBirth');
+        // Select spans
+        let currentFirstNameSpan = firstNameTd.find('.firstNameLabel');
+        let currentLastNameSpan = lastNameTd.find('.lastNameLabel');
+        let currentDateOfBirthSpan = dateOfBirthTd.find('.dateOfBirthLabel');
+        // Select Hidden Inputs
+        let currentFirstNameInput = firstNameTd.find('.editFirstName');
+        let currentLastNameInput = lastNameTd.find('.editLastName');
+        let currentDateOfBirthInput = dateOfBirthTd.find('.editDateOfBirth');
+        // Hide span labels
+        currentFirstNameSpan.hide()
+        currentLastNameSpan.hide()
+        currentDateOfBirthSpan.hide()
+        // Show Hidden Inputs
+        currentFirstNameInput.show()
+        currentLastNameInput.show()
+        currentDateOfBirthInput.show()
+        // we remove class active-row for all the rows except the current one
+        allStudentsRows.each(function(i, obj) {
+          $(this).removeClass("active-row")
+        });
+        // add class "active" to the row
+        userDataRow.addClass("active-row")
+        // hide clicked edit button
+        $(this).hide()
+        // select save button
+        let saveButton = $(this).parent().find('.btnSave')
+        saveButton.show()
+    });
 
-        let userData = $(this).closest('tr');
-        //console.log($(this).closest('tr'))
-        let firstNameData = userData.find('.firstName');
-         //console.log(userData.find('.firstName'));
-        let lastNameData = userData.find('.lastName');
-        let dateOfBirthData = userData.find('.dateOfBirth');
-        let editButton = userData.find('.btnEdit');
-
-        let currentFirstName = firstNameData.text();
-        let currentLastName = lastNameData.text();
-        let currentDateOfBirth = dateOfBirthData.text();
-        //console.log(firstNameData.text());
-        firstNameData.html('<input type="text" class="form-group col-md-6 editFirstName" value="' + currentFirstName + '">');
-        lastNameData.html('<input type="text" class="form-group col-md-6 editLastName " value="' + currentLastName + '">');
-        dateOfBirthData.html('<input type="date" class="form-group editDateOfBirth" value="' + currentDateOfBirth + '">');
-        editButton.text('Save').addClass('saveBtn');
-        console.log(editButton)
-        $('.saveBtn').on('click',function(){
-            let that = $(this)
-            //get the val of all fields
-            let newFirstName = $('.editFirstName').val();
-            let newLastName = $('.editLastName ').val();
-            let newDateOfBirth = $('.editDateOfBirth').val();
-            console.log(newFirstName)
-            console.log(newLastName)
-            console.log(newDateOfBirth)
-
-            //get value of fields
-            firstNameData.text(newFirstName);
-            lastNameData.text(newLastName);
-            dateOfBirthData.text(newDateOfBirth);
-
-            //get the ID of the student
-          let  studentId = that.parent().next().val()
-            console.log(studentId)
-            //post request to update the student
+    $('body').on('click','.btnSave',function(e){
+        e.preventDefault()
+        let that = $(this)
+        let userDataRow = $(this).parent().parent();
+        // Select Spans
+        let newFirstNameSpan = userDataRow.find('.firstNameLabel');
+        let newLastNameSpan = userDataRow.find('.lastNameLabel');
+        let newDateOfBirthSpan = userDataRow.find('.dateOfBirthLabel');
+        // Select Inputs
+        let newFirstNameInput = userDataRow.find('.editFirstName');
+        let newLastNameInput = userDataRow.find('.editLastName');
+        let newDateOfBirthInput = userDataRow.find('.editDateOfBirth');
+        // Get Inputs Values
+        let newFirstNameInputValue = newFirstNameInput.val();
+        let newLastNameInputValue = newLastNameInput.val();
+        let newDateOfBirthInputValue = newDateOfBirthInput.val();
+        //get the ID of the student
+        let studentId = userDataRow.find('.studentId').val()
+        //PUT request to update the student
         $.ajax({
-            url: 'http://localhost:3000/students/'+ studentId,
+            url: BASE_URL + studentId,
             method: "PUT",
             dataType: "json",
             contentType: "application/json",
             data: JSON.stringify({
-
-                "firstName": newFirstName,
-                "lastName": newLastName,
-                "dateOfBirth": newDateOfBirth
+                "firstName": newFirstNameInputValue,
+                "lastName": newLastNameInputValue,
+                "dateOfBirth": newDateOfBirthInputValue
             }),
             success: function (response) {
-                console.log('Student updated successfully:', response);
+                newFirstNameInput.val(response.firstName)
+                newFirstNameSpan.text(response.firstName)
+                newLastNameInput.val(response.lastName)
+                newLastNameSpan.text(response.lastName)
+                newDateOfBirthInput.val(response.dateOfBirth)
+                newDateOfBirthSpan.text(response.dateOfBirth)
+                // Hide Inputs
+                newFirstNameInput.hide()
+                newLastNameInput.hide()
+                newDateOfBirthInput.hide()
+                // Show Spans
+                newFirstNameSpan.show()
+                newLastNameSpan.show()
+                newDateOfBirthSpan.show()
+                // Hide save button & show edit button
+                that.hide()
+                let editButton = that.parent().find('.btnEdit')
+                editButton.show()
             },
             error: function (error) {
                 console.error('Error updating student:', error);
             }
-        });
-            editButton.text('Edit').removeClass('saveBtn');
-        });
+        })
     });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*function deleteRow(ele){
-        let table = $('#tbody')[0];
-        let rowCount = table.rows.length;
-        if(rowCount <= 1){
-            alert("There is no row available to delete!");
-            return;
-        }
-        if(ele){
-            //delete specific row
-            $(ele).parent().parent().remove();
-        }
-        else{
-            //delete last row
-            table.deleteRow(rowCount-1);
-        }
-    }
-     $('#tbody').on("click", "#deleteBtn", function () {
-          console.log("hi")
-       })
-       $("#deleteBtn").click (function()
-       {
-
-       })*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   /* $("#submitBtn").click(function() {
-        let firstName = $("#firstName").val();
-        let lastName = $("#lastName").val();
-        let dateOfBirth = $("#dateOfBirth").val();
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://localhost:3000/students");
-        xhr.setRequestHeader("Accept", "application/json");
-        let requestData = JSON.stringify({
-            "firstName": firstName,
-            "lastName": lastName,
-            "dateOfBirth": dateOfBirth
-        });
-        console.log("Request Data:", requestData);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                console.log("Response Data:", xhr.responseText);
-                let responseData = JSON.parse(xhr.responseText);
-                console.log(responseData);
-                let tableBody = $("table tbody");
-                let tr = $("<tr></tr>");
-                let tdName = $("<td></td>").text(responseData.firstName);
-                let tdLastName = $("<td></td>").text(responseData.lastName);
-                let tdDateOfBirth = $("<td></td>").text(responseData.dateOfBirth);
-                tr.append(tdName, tdLastName, tdDateOfBirth);
-                tableBody.append(tr);
-            }
-        };
-        xhr.send(requestData);
-    });
-    });*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*$(document).ready(function(){
-    $("#list-btn").click(function() {
-        fetch("http://localhost:3000/students")
-            .then(response => {
-                console.log(response);
-            })
-            .then(students => {
-                console.log(students);
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    });
-
-});*/
-
-
-/*$(document).ready(function(){
-    $("tr").click(function() {
-        let studentId = $(this).data("id");
-        console.log(studentId)
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", "http://localhost:3000/students");
-        xhr.send();
-        xhr.responseType = "json";
-        xhr.onload = () => {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                console.log(xhr.response);
-            } else {
-                console.log(`Error: ${xhr.status}`);
-            }
-        };
-
-    })
-})*/
