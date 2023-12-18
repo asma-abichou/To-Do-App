@@ -15,10 +15,10 @@ $(document).ready(function() {
                     <td class="firstName"><span class="firstNameLabel">${response[i].firstName}</span><input  placeholder="First name..." type="text" class="form-control-sm editFirstName text-center" value="${response[i].firstName}" style="display: none"></td>
                     <td class="lastName"><span class="lastNameLabel">${response[i].lastName}</span><input  placeholder="Last name..." type="text" class="form-control-sm editLastName text-center" value="${response[i].lastName}" style="display: none"></td>
                     <td class="dateOfBirth"><span class="dateOfBirthLabel">${response[i].dateOfBirth}</span><input type="date" class="form-control-sm editDateOfBirth text-center" value="${response[i].dateOfBirth}" style="display: none"></td>
-                <td><button class="btn btn-success disabled">show</button>
-                <button class="btn btn-primary ms-2 btnEdit">edit</button>
-                <button class="btn btn-primary ms-2 btnSave" style="display: none">save</button>
-                <button class="btn btn-danger ms-2 btnDel">delete</button>
+                <td>
+                <button class="btn btn-primary ms-2 btnEdit">Edit</button>
+                <button class="btn btn-success ms-2 btnSave" style="display: none">Save</button>
+                <button class="btn btn-danger ms-2 btnDel">Delete</button>
                 </td><input value="${response[i].id}" type="hidden" class="studentId">
                 </tr>`);
             }
@@ -51,10 +51,9 @@ $(document).ready(function() {
                     <td class="lastName"><span class="lastNameLabel">${response.lastName}</span><input placeholder="Last name..." type="text" class="form-control-sm editLastName text-center" value="${response.lastName}" style="display: none"></td>
                     <td class="dateOfBirth"><span class="dateOfBirthLabel">${response.dateOfBirth}</span><input type="date" class="form-control-sm editDateOfBirth text-center" value="${response.dateOfBirth}" style="display: none"></td>
                     <td>
-                    <button class="btn btn-success disabled">show</button>
-                    <button  class="btn btn-primary ms-2 btnEdit">edit</button>
-                    <button  class="btn btn-primary ms-2 btnSave" style="display: none">save</button>
-                    <button class="btn btn-danger ms-2 btnDel">delete</button>
+                    <button  class="btn btn-primary ms-2 btnEdit">Edit</button>
+                    <button  class="btn btn-success ms-2 btnSave" style="display: none">Save</button>
+                    <button class="btn btn-danger ms-2 btnDel">Delete</button>
                     </td>
                     <input value="${response.id}" type="hidden" class="studentId">
                     </tr>`
