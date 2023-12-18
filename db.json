@@ -3,44 +3,16 @@
     {
       "firstName": "asma",
       "lastName": "bb",
-      "dateOfBirth": "1998-12-03",
-      "score": "3",
-      "id": 22
+      "dateOfBirth": "2022-12-01",
+      "score": "89",
+      "id": 34
     },
     {
-      "firstName": "Asma",
+      "firstName": "asma",
       "lastName": "Lihedeb",
-      "dateOfBirth": "1998-12-03",
-      "score": "10",
-      "id": 23
-    },
-    {
-      "firstName": "Abla",
-      "lastName": "Lihedeb",
-      "dateOfBirth": "1998-11-03",
-      "score": "50",
-      "id": 24
-    },
-    {
-      "firstName": "Abla",
-      "lastName": "ab",
-      "dateOfBirth": "2000-10-03",
-      "score": "20",
-      "id": 25
-    },
-    {
-      "firstName": "cristiano",
-      "lastName": "bb",
-      "dateOfBirth": "1999-02-10",
-      "score": "100",
-      "id": 26
-    },
-    {
-      "firstName": "olfaa",
-      "lastName": "ab",
-      "dateOfBirth": "2000-12-12",
-      "score": "100",
-      "id": 27
+      "dateOfBirth": "2001-12-01",
+      "score": "78",
+      "id": 35
     }
   ]
 }

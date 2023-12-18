@@ -9,22 +9,53 @@ $(document).ready(function() {
         dataType: "json",
         success: function (response) {
             let tableBody = $("table tbody");
-            tableBody.empty();
+            tableBody.empty()
+
             for (let i = 0; i < response.length; i++) {
-                tableBody.append(`<tr class="student">
+                tableBody.append(`<tr class="student" data-studentRow="${response[i].id}">
                     <td class="firstName"><span class="firstNameLabel">${response[i].firstName}</span><input  placeholder="First name..." type="text" class="form-control-sm editFirstName text-center" value="${response[i].firstName}" style="display: none"></td>
                     <td class="lastName"><span class="lastNameLabel">${response[i].lastName}</span><input  placeholder="Last name..." type="text" class="form-control-sm editLastName text-center" value="${response[i].lastName}" style="display: none"></td>
                     <td class="dateOfBirth"><span class="dateOfBirthLabel">${response[i].dateOfBirth}</span><input type="date" class="form-control-sm editDateOfBirth text-center" value="${response[i].dateOfBirth}" style="display: none"></td>
                     <td class="score"><span class="scoreLabel">${response[i].score}</span><input type="number" class="form-control-sm editScore text-center" value="${response[i].score}" style="display: none"></td>
-                <td>
-                <button class="btn btn-primary ms-2 btnEdit">Edit</button>
-                <button class="btn btn-success ms-2 btnSave" style="display: none">Save</button>
-                <button class="btn btn-danger ms-2 btnDel">Delete</button>
-                </td><input value="${response[i].id}" type="hidden" class="studentId">
+                    <td>
+                    <button class="btn btn-primary ms-2 btnEdit">Edit</button>
+                    <button class="btn btn-success ms-2 btnSave" style="display: none">Save</button>
+                    <button class="btn btn-danger ms-2" data-toggle="modal" data-target="#deleteModal${response[i].id}">Delete</button>
+                    <button class="btnDel" style="display: none">Delete</button>
+                    </td>
+                    <input value="${response[i].id}" type="hidden" class="studentId">
                 </tr>`);
             }
+
+            for (let i = 0; i < response.length; i++)
+            {
+                $( "#addStudentForm" ).after(`
+                <div class="modal fade" id="deleteModal${response[i].id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content text-center">
+                      <div class="modal-header d-block">
+                        <h5 class="modal-title text-center">Warning</h5>
+                      </div>
+                      <div class="modal-body text-center">
+                        Are you sure you want to delete this user ?
+                      </div>
+                      <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary modalBtnConfirmDelete" data-student="${response[i].id}">Confirm</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>`);
+            }
         },
+
     });
+
+    body.on('click', '.modalBtnConfirmDelete', function(){
+        let studentId = $(this).data("student");
+        body.find(`[data-studentRow="${studentId}"]`).find('.btnDel').click()
+        $(`#deleteModal${studentId}`).modal('hide');
+    })
 
     $("#addStudentBtn").click(function () {
         $("#addStudentForm").toggle();
@@ -41,7 +72,6 @@ $(document).ready(function() {
             $("#resultDiv").html(`<p style="color: red; font-weight: bolder; font-family: Cambria,serif;">Please fill in all the fields and retry again!</p>`);
             return;
         }
-
         // Calculate age and verify: stop adding if age is not correct
         if (calculateAgeAndVerify(dateOfBirth) < 20 || calculateAgeAndVerify(dateOfBirth) > 30) {
             return;
@@ -60,7 +90,7 @@ $(document).ready(function() {
             }),
             success: function (response) {
                 let tableBody = $("table tbody");
-                tableBody.append(`<tr class="student">
+                tableBody.append(`<tr class="student" data-studentRow="${response.id}">
                     <td class="firstName"><span class="firstNameLabel">${response.firstName}</span><input placeholder="First name..." type="text" class="form-control-sm editFirstName text-center" value="${response.firstName}" style="display: none"></td>
                     <td class="lastName"><span class="lastNameLabel">${response.lastName}</span><input placeholder="Last name..." type="text" class="form-control-sm editLastName text-center" value="${response.lastName}" style="display: none"></td>
                     <td class="dateOfBirth"><span class="dateOfBirthLabel">${response.dateOfBirth}</span><input type="date" class="form-control-sm editDateOfBirth text-center" value="${response.dateOfBirth}" style="display: none"></td>
@@ -68,17 +98,36 @@ $(document).ready(function() {
                     <td>
                     <button  class="btn btn-primary ms-2 btnEdit">Edit</button>
                     <button  class="btn btn-success ms-2 btnSave" style="display: none">Save</button>
-                    <button class="btn btn-danger ms-2 btnDel">Delete</button>
+                    <button class="btn btn-danger ms-2" data-toggle="modal" data-target="#deleteModal${response.id}">Delete</button>
+                    <button class="btnDel" style="display: none">Delete</button>
                     </td>
                     <input value="${response.id}" type="hidden" class="studentId">
                     </tr>`
-                );
+                )
+                $( "#addStudentForm" ).after(`
+                <div class="modal fade" id="deleteModal${response.id}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content text-center">
+                      <div class="modal-header d-block">
+                        <h5 class="modal-title text-center">Warning</h5>
+                      </div>
+                      <div class="modal-body text-center">
+                        Are you sure you want to delete this user ?
+                      </div>
+                      <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary modalBtnConfirmDelete" data-student="${response.id}">Confirm</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>`);
             }
-
         });
+
         $('.addStudentInput').val('');
     });
-       function calculateAgeAndVerify(dateOfBirthday){
+
+        function calculateAgeAndVerify(dateOfBirthday){
             let birthDateObj = new Date(dateOfBirthday);
             let currentDate = new Date();
             let age = currentDate.getFullYear() - birthDateObj.getFullYear();
@@ -88,27 +137,6 @@ $(document).ready(function() {
            }
            return age;
        }
-    let scores = [];
-    function colorizeScores() {
-        $(".scoreLabel").each(function(){
-            let  score = parseFloat($(this).text());
-            console.log(score)
-            let maxScore = Math.max(...scores);
-            let minScore = Math.min(...scores);
-            if (score === maxScore) {
-                // Apply pink color for the maximum score
-                $(this).css("color", "pink");
-            } else if (score === minScore) {
-                // Apply another color for the minimum score
-                $(this).css("color", "other-color");
-            } else {
-                // Reset color for other scores
-                $(this).css("color", ""); // You can set the default color here
-            }
-        });
-        scores = [];
-    }
-
 
 
     body.on('click', '.btnDel', function(){
@@ -128,13 +156,13 @@ $(document).ready(function() {
        });
     });
 
-    body.on('click','.btnEdit', function(){
+    body.on('click','.btnEdit', function() {
         let userDataRow = $(this).parent().parent();
-        let allStudentsRows = $(".student");
+        let allStudentsRows = $(".student")
+
         // we loop through all students rows and hide inputs and show spans for already active rows
-        allStudentsRows.each(function(i, obj) {
-            if($(this).hasClass("active-row"))
-            {
+        allStudentsRows.each(function (i, obj) {
+            if ($(this).hasClass("active-row")) {
                 // Select Inputs
                 let firstNameInputToHide = $(this).find('.editFirstName');
                 let lastNameInputToHide = $(this).find('.editLastName');
@@ -174,7 +202,7 @@ $(document).ready(function() {
         let currentFirstNameSpan = firstNameTd.find('.firstNameLabel');
         let currentLastNameSpan = lastNameTd.find('.lastNameLabel');
         let currentDateOfBirthSpan = dateOfBirthTd.find('.dateOfBirthLabel');
-        let currentScoreSpan = dateOfBirthTd.find('.scoreLabel');
+        let currentScoreSpan = scoreTd.find('.scoreLabel');
         // Select Hidden Inputs
         let currentFirstNameInput = firstNameTd.find('.editFirstName');
         let currentLastNameInput = lastNameTd.find('.editLastName');
@@ -191,8 +219,8 @@ $(document).ready(function() {
         currentDateOfBirthInput.show()
         currentScoreInput.show()
         // we remove class active-row for all the rows except the current one
-        allStudentsRows.each(function(i, obj) {
-          $(this).removeClass("active-row")
+        allStudentsRows.each(function (i, obj) {
+            $(this).removeClass("active-row")
         });
         // add class "active" to the row
         userDataRow.addClass("active-row")
@@ -201,7 +229,36 @@ $(document).ready(function() {
         // select save button
         let saveButton = $(this).parent().find('.btnSave')
         saveButton.show()
-    });
+        // colorize scores
+        //select score
+        // let studentRows = $(this).parent().prev().children('.student');
+        let studentRows = $(this).closest('tr').siblings('.student');
+        // Find the maximum score among all student rows
+        let maxScore = Math.max(...studentRows.map(function () {
+            return parseInt($(this).find('.scoreLabel').text());
+        }));
+        let minScore = Math.min(...studentRows.map(function () {
+            return parseInt($(this).find('.scoreLabel').text());
+        }));
+        console.log(studentRows)
+        studentRows.each(function (i, obj) {
+            let studentScore = parseInt($(this).find('.scoreLabel').text());
+            if (studentScore === maxScore) {
+                $(this).addClass("table-success");
+            } else {
+                $(this).removeClass("table-primary");
+            }
+        })
+        studentRows.each(function (i, obj) {
+            let studentScore = parseInt($(this).find('.scoreLabel').text());
+            if (studentScore === minScore) {
+                $(this).addClass("table-primary");
+            } else {
+                $(this).removeClass("table-primary");
+            }
+        });
+    })
+
 
     $('body').on('click','.btnSave',function(e){
         e.preventDefault()
@@ -259,6 +316,7 @@ $(document).ready(function() {
                 that.hide()
                 let editButton = that.parent().find('.btnEdit')
                 editButton.show()
+
             },
             error: function (error) {
                 console.error('Error updating student:', error);
