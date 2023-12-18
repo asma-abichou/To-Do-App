@@ -1,28 +1,46 @@
 {
   "students": [
     {
-      "firstName": "ablatoun",
-      "lastName": "monalisa",
-      "dateOfBirth": "2012-09-07",
-      "id": 6
-    },
-    {
-      "firstName": "abla",
-      "lastName": "lihedeb",
-      "dateOfBirth": "1981-10-15",
-      "id": 12
-    },
-    {
-      "firstName": "cristiano",
-      "lastName": "Abichou",
-      "dateOfBirth": "2023-12-08",
-      "id": 13
+      "firstName": "asma",
+      "lastName": "bb",
+      "dateOfBirth": "1998-12-03",
+      "score": "3",
+      "id": 22
     },
     {
       "firstName": "Asma",
-      "lastName": "ronaldo",
-      "dateOfBirth": "2023-12-01",
-      "id": 14
+      "lastName": "Lihedeb",
+      "dateOfBirth": "1998-12-03",
+      "score": "10",
+      "id": 23
+    },
+    {
+      "firstName": "Abla",
+      "lastName": "Lihedeb",
+      "dateOfBirth": "1998-11-03",
+      "score": "50",
+      "id": 24
+    },
+    {
+      "firstName": "Abla",
+      "lastName": "ab",
+      "dateOfBirth": "2000-10-03",
+      "score": "20",
+      "id": 25
+    },
+    {
+      "firstName": "cristiano",
+      "lastName": "bb",
+      "dateOfBirth": "1999-02-10",
+      "score": "100",
+      "id": 26
+    },
+    {
+      "firstName": "olfaa",
+      "lastName": "ab",
+      "dateOfBirth": "2000-12-12",
+      "score": "100",
+      "id": 27
     }
   ]
 }
