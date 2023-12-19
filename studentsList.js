@@ -47,9 +47,35 @@ $(document).ready(function() {
                   </div>
                 </div>`);
             }
+            scoreColorCondition()
         },
-
     });
+
+    function scoreColorCondition()
+    {
+        let studentsRows = $('.student');
+        studentsRows.each(function (i, obj) {
+            $(this).removeClass("table-primary")
+            $(this).removeClass("table-danger")
+        });
+        let scoresArray = [];
+        studentsRows.each(function (i, obj) {
+            scoresArray.push(parseInt($(this).find('.editScore').val()))
+        });
+        if(scoresArray.length <=1) return;
+        let maxVal = Math.max(...scoresArray);
+        let minVal = Math.min(...scoresArray)
+        studentsRows.each(function (i, obj) {
+            let studentScore = $(this).find('.editScore').val()
+            if(studentScore == maxVal)
+            {
+                $(this).addClass("table-primary")
+            } else if(studentScore == minVal)
+            {
+                $(this).addClass("table-danger")
+            }
+        });
+    }
 
     body.on('click', '.modalBtnConfirmDelete', function(){
         let studentId = $(this).data("student");
@@ -61,6 +87,16 @@ $(document).ready(function() {
         $("#addStudentForm").toggle();
     });
 
+    function calculateAgeAndVerify(dateOfBirth){
+        let birthDateObj = new Date(dateOfBirth);
+        let currentDate = new Date();
+        return (currentDate.getFullYear() - birthDateObj.getFullYear());
+    }
+
+    function renderDomAgeErrorMessage(container,age)
+    {
+        container.html(`<p style="color: red; font-weight: bolder; font-family: Cambria,serif;">Your age is ${age}. <br> You must be between 20 and 30 years old!</p>`);
+    }
     // POST Request to add student
     $("#submitBtn").click(function () {
         let firstName = $("#firstName").val();
@@ -68,12 +104,14 @@ $(document).ready(function() {
         let dateOfBirth = $("#dateOfBirth").val();
         let score = $("#score").val();
         // Validation form: stop adding if any field is empty
-        if (firstName === "" || lastName === "" || dateOfBirth === "" || score === "") {
+        if ((firstName === "") || (lastName === "") || (dateOfBirth === "") || (score === "")) {
             $("#resultDiv").html(`<p style="color: red; font-weight: bolder; font-family: Cambria,serif;">Please fill in all the fields and retry again!</p>`);
             return;
         }
         // Calculate age and verify: stop adding if age is not correct
-        if (calculateAgeAndVerify(dateOfBirth) < 20 || calculateAgeAndVerify(dateOfBirth) > 30) {
+        let userAge = calculateAgeAndVerify(dateOfBirth);
+        if (userAge < 20 || userAge > 30) {
+            renderDomAgeErrorMessage($("#resultDiv"),userAge)
             return;
         }
 
@@ -121,34 +159,27 @@ $(document).ready(function() {
                     </div>
                   </div>
                 </div>`);
+
+                $("#resultDiv").empty()
+                $('.addStudentInput').val('');
+                scoreColorCondition()
             }
         });
 
-        $('.addStudentInput').val('');
     });
 
-        function calculateAgeAndVerify(dateOfBirthday){
-            let birthDateObj = new Date(dateOfBirthday);
-            let currentDate = new Date();
-            let age = currentDate.getFullYear() - birthDateObj.getFullYear();
-
-           if (age < 20 || age > 30) {
-               $("#resultDiv").html(`<p style="color: red; font-weight: bolder; font-family: Cambria,serif;">Your age is ${age}. <br> You must be between 20 and 30 years old.</p>`);
-           }
-           return age;
-       }
-
-
-    body.on('click', '.btnDel', function(){
+    body.on('click', '.btnDel', function()
+    {
         let that = $(this)
-       let studentId = $(this).parent().next().val();
+        let studentId = $(this).parent().next().val();
         // Make an AJAX request to delete the item from the server
        $.ajax({
             url: BASE_URL + studentId,
             type: 'DELETE',
             success: function(response) {
                 // Remove the row from table
-             that.parent().parent().remove()
+                that.parent().parent().remove()
+                scoreColorCondition()
             },
            error: function(error) {
             console.error('Error deleting student:', error);
@@ -229,41 +260,13 @@ $(document).ready(function() {
         // select save button
         let saveButton = $(this).parent().find('.btnSave')
         saveButton.show()
-        // colorize scores
-        //select score
-        // let studentRows = $(this).parent().prev().children('.student');
-        let studentRows = $(this).closest('tr').siblings('.student');
-        // Find the maximum score among all student rows
-        let maxScore = Math.max(...studentRows.map(function () {
-            return parseInt($(this).find('.scoreLabel').text());
-        }));
-        let minScore = Math.min(...studentRows.map(function () {
-            return parseInt($(this).find('.scoreLabel').text());
-        }));
-        console.log(studentRows)
-        studentRows.each(function (i, obj) {
-            let studentScore = parseInt($(this).find('.scoreLabel').text());
-            if (studentScore === maxScore) {
-                $(this).addClass("table-success");
-            } else {
-                $(this).removeClass("table-primary");
-            }
-        })
-        studentRows.each(function (i, obj) {
-            let studentScore = parseInt($(this).find('.scoreLabel').text());
-            if (studentScore === minScore) {
-                $(this).addClass("table-primary");
-            } else {
-                $(this).removeClass("table-primary");
-            }
-        });
     })
-
 
     $('body').on('click','.btnSave',function(e){
         e.preventDefault()
         let that = $(this)
-        let userDataRow = $(this).parent().parent();
+        let userDataRow = $(this).parent().parent()
+
         // Select Spans
         let newFirstNameSpan = userDataRow.find('.firstNameLabel');
         let newLastNameSpan = userDataRow.find('.lastNameLabel');
@@ -282,6 +285,11 @@ $(document).ready(function() {
         //get the ID of the student
         let studentId = userDataRow.find('.studentId').val()
         //PUT request to update the student
+        let userAge = calculateAgeAndVerify(newDateOfBirthInputValue);
+        if (userAge < 20 || userAge > 30) {
+            renderDomAgeErrorMessage($("#verifyAge"),userAge)
+            return;
+        }
         $.ajax({
             url: BASE_URL + studentId,
             method: "PUT",
@@ -316,7 +324,8 @@ $(document).ready(function() {
                 that.hide()
                 let editButton = that.parent().find('.btnEdit')
                 editButton.show()
-
+                scoreColorCondition()
+                $("#verifyAge").empty()
             },
             error: function (error) {
                 console.error('Error updating student:', error);
